@@ -1,0 +1,6 @@
+.vagrant/
+*.tar
+backend/bin/
+backend/obj/
+.vs/
+*.user

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>پروژه DevOps - Docker Swarm & .NET</title>
+  <style>
+    body { font-family: Tahoma, sans-serif; background: #0f172a; color: #f8fafc; text-align: center; padding: 40px; }
+    .card { background: #1e293b; max-width: 650px; margin: auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    button { background: #3b82f6; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; margin: 10px; }
+    button:hover { background: #2563eb; }
+    pre { background: #020617; color: #38bdf8; text-align: left; direction: ltr; padding: 15px; border-radius: 8px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>کلاستر Docker Swarm + بک‌اند .NET 8</h2>
+    <p>با هر بار کلیک، درخواست از Reverse Proxy عبور کرده و بین ۲ کانتینر .NET توزیع می‌شود:</p>
+    <button onclick="callApi()">ارسال درخواست به API (.NET)</button>
+    <pre id="output">برای تست روی دکمه بالا کلیک کنید...</pre>
+  </div>
+  <script>
+    async function callApi() {
+      const res = await fetch('/api/info');
+      const data = await res.json();
+      document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+---
+- name: Install Docker on all nodes
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker using official script
+      shell: curl -fsSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Ensure Docker service is started
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+
+- name: Initialize Docker Swarm on Manager
+  hosts: manager
+  become: yes
+  tasks:
+    - name: Check Swarm state
+      shell: 'docker info | grep -q "Swarm: active" && echo active || echo inactive'
+      register: swarm_state
+      changed_when: false
+
+    - name: Init Swarm
+      shell: docker swarm init --advertise-addr 192.168.56.11
+      when: swarm_state.stdout != "active"
+
+    - name: Get Worker Join Token
+      shell: docker swarm join-token -q worker
+      register: worker_token
+      changed_when: false
+
+    - name: Save token as fact
+      set_fact:
+        join_token: "{{ worker_token.stdout }}"
+
+- name: Join Worker to Swarm
+  hosts: worker
+  become: yes
+  tasks:
+    - name: Check Worker Swarm state
+      shell: 'docker info | grep -q "Swarm: active" && echo active || echo inactive'
+      register: worker_swarm_state
+      changed_when: false
+
+    - name: Join Swarm Cluster
+      shell: docker swarm join --token {{ hostvars['192.168.56.11']['join_token'] }} 192.168.56.11:2377
+      when: worker_swarm_state.stdout != "active"
